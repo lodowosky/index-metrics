@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-summary = pd.DataFrame(columns=["Index", "Start", "End"]) #creo un dataframe di riepilogo dove inserire le informazioni più importanti raccolte
+summary = pd.DataFrame(columns=["Name", "Start", "End"]) #creo un dataframe di riepilogo dove inserire le informazioni più importanti raccolte
 
 # percorso della cartella
 cartella = "/Users/lodovicocaruso/index-metrics/index-data"
@@ -9,6 +9,7 @@ file_txt = [f for f in os.listdir(cartella) if f.endswith('.txt')]
 
 print("Ho trovato questi file:")
 print(file_txt)
+print("\n")
 
 lista_di_serie = []
 
@@ -23,16 +24,18 @@ for file in file_txt:
     except Exception as e:
         print(f"Errore leggendo {file}: {e}")
 
+print("\n")
 print(summary)
-summary.to_csv("summary.txt")
+summary.to_csv("indexes_available.csv")
 
 # concatenazione
 daily_returns_inner = pd.concat(lista_di_serie, axis=1, join='inner')
 daily_returns_outer = pd.concat(lista_di_serie, axis=1, join='outer')
 daily_returns_outer = daily_returns_outer.sort_index()
 
-print(daily_returns_inner)
-daily_returns_inner.to_csv("daily_returns_inner.txt")
 
-print(daily_returns_outer)
+daily_returns_inner.to_csv("daily_returns_inner.txt")
 daily_returns_outer.to_csv("daily_returns_outer.txt")
+
+print("\nFile aggiornati, consulta indexes_available.csv")
+

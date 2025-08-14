@@ -32,7 +32,9 @@ def calculate_annualized_cumulative_returns(daily_returns, years):
 
     return pd.Series(data=annualized_returns, index=date_corr)
 
-summary = pd.read_csv('summary.txt', index_col=0)
+#accedo ai file che mi servono
+summary = pd.read_csv('indexes_available.csv', index_col=0) 
+daily_returns_inner = pd.read_csv('daily_returns_inner.txt', index_col=0)
 
 print("Iniziamo subito, quali indici vuoi studiare?")
 print(summary)
@@ -40,20 +42,65 @@ scelta = input("Inserisci i numeri intervallati da virgole o scrivi tutti: ").st
 
 if scelta == "tutti":
     # Se l'utente ha scelto tutti, prende tutti
-    selected = summary.copy()
+    selezionati = summary.copy()
     print("Ok, presi tutti.")
 else:
     # Converto la scelta in lista di interi e prendo solo quelli selezionati
     scelte_num = [int(x) for x in scelta.split(',')]
-    selected = summary.loc[scelte_num]
+    selezionati = summary.loc[scelte_num]
     # Stampo i selezionati
     print("Hai selezionato:")
-    print(selected)
+    print(selezionati)
 
-#da questo momento in poi non toccherai più summary, lavorerai solo su selected
-#selected.loc[len(summary)] = [serie.name, serie.index[0], serie.index[-1],]
+#da questo momento in poi non toccherai più summary, lavorerai solo su selezionati
 
-years = int(input("\n Ora inserisci la durata dell'investimento (in anni): "))
-print(f"Perfetto, iniziamo!")
+years = int(input("Ora inserisci la durata dell'investimento (in anni): "))
 
-records = []
+#risk_free_rate = float(input("\nInserisci il risk free return attuale (per il calcolo dello Sharpe ratio): "))
+risk_free_rate = 0.02
+print(f"Perfetto, iniziamo!\nSto usando un risk_free_rate = {risk_free_rate}.")
+
+
+records = [] # lista dove accumulare i risultati
+list_of_rendimenti = []
+
+for index, row in selezionati.iterrows():
+  nome = row['Name']
+
+  if nome in daily_returns_inner.columns:
+    daily_returns = daily_returns_inner[nome]  # Series pulita
+    start = daily_returns.index[0]
+    end = daily_returns.index[-1]
+
+    rendimenti = calculate_annualized_cumulative_returns(daily_returns, years)
+
+    if rendimenti is None:
+      print(f"Escludo {nome}, avendo la prima quotazione al {start} non è possibile simulare un investimento di durata {years} anni")
+      continue
+
+    rendimenti.name = nome
+    list_of_rendimenti.append(rendimenti)
+
+    rendimento_medio = rendimenti.mean()
+    deviazione_std = rendimenti.std()
+
+    records.append({
+        "Name": nome,
+        "Start": start,
+        "End": end,
+        "Ann. return (%)": round(rendimento_medio, 4),
+        "Std. dev. (%)": round(deviazione_std, 4),
+        "Sharpe ratio": round((rendimento_medio - risk_free_rate)  / deviazione_std, 4)
+    })
+
+cumulative_returns_inner = pd.concat(list_of_rendimenti, axis=1, join='inner') #salvo i rendimenti dell'investimento allineati
+cumulative_returns_outer = pd.concat(list_of_rendimenti, axis=1, join='outer') #salvo i rendimenti dell'investimento
+
+# Creo il DataFrame
+selezionati = pd.DataFrame(records)
+#selezionati.index = selezionati.index + 1
+
+# Stampo il DataFrame
+print(f"\nDalla mia analisi su un investimento di {years} anni otteniamo le seguenti informazioni:\n")
+print(selezionati) 
+selezionati.to_csv("Analytics.csv", sep="\t", index=False)

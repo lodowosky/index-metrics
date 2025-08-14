@@ -30,6 +30,6 @@ daily_returns_outer = pd.concat(lista_di_serie, axis=1, join='outer')
 daily_returns_outer = daily_returns_outer.sort_index()
 daily_returns_outer.to_csv("daily_returns_outer.txt")
 
-print("\nFile aggiornati, ti mostro summary.csv")
+print("\nFile aggiornato, ti mostro summary.csv")
 print(summary)
-print("\n")
+print("\nHo salvato i daily returns in daily_returns_outer.txt ")

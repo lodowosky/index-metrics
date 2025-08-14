@@ -1,6 +1,3 @@
-import pandas as pd
-import os
-
 # una funzione che restituisce la lista dei ritorni cumulativi prendendo in input una lista di ritorni giornalieri
 def calculate_cumulative_returns(group):
   return (1 + group).cumprod() - 1
@@ -31,27 +28,3 @@ def calculate_annualized_cumulative_returns(daily_returns, years):
         date_corr.append(selected_returns.index[-1])    # data finale finestra
 
     return pd.Series(data=annualized_returns, index=date_corr)
-
-#accedo ai file che mi servono
-summary = pd.read_csv('indexes_available.csv', index_col=0) 
-daily_returns_inner = pd.read_csv('daily_returns_inner.txt', index_col=0)
-daily_returns_outer = pd.read_csv('daily_returns_outer.txt', index_col=0)
-
-print("Iniziamo subito, quali indici vuoi studiare?")
-print(summary)
-scelta = input("Inserisci i numeri intervallati da virgole o scrivi tutti: ").strip()
-
-if scelta == "tutti":
-    # Se l'utente ha scelto tutti, prende tutti
-    selezionati = summary.copy()
-    print("Ok, presi tutti.")
-else:
-    # Converto la scelta in lista di interi e prendo solo quelli selezionati
-    scelte_num = [int(x) for x in scelta.split(',')]
-    selezionati = summary.loc[scelte_num]
-    # Stampo i selezionati
-    print("Hai selezionato:")
-    print(selezionati)
-
-selezionati.to_csv("indexes_selected.csv")
-print(f"Puoi visualizzarli anche su indexes_selected.csv")

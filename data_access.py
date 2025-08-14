@@ -27,12 +27,12 @@ print(summary)
 summary.to_csv("summary.txt")
 
 # concatenazione
-df_inner = pd.concat(lista_di_serie, axis=1, join='inner')
-df_outer = pd.concat(lista_di_serie, axis=1, join='outer')
-df_outer_sorted = df_outer.sort_index()
+daily_returns_inner = pd.concat(lista_di_serie, axis=1, join='inner')
+daily_returns_outer = pd.concat(lista_di_serie, axis=1, join='outer')
+daily_returns_outer = daily_returns_outer.sort_index()
 
-print(df_inner)
-df_inner.to_csv("library_inner.txt")
+print(daily_returns_inner)
+daily_returns_inner.to_csv("daily_returns_inner.txt")
 
-print(df_outer)
-df_outer.to_csv("library.txt")
+print(daily_returns_outer)
+daily_returns_outer.to_csv("daily_returns_outer.txt")

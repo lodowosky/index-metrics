@@ -1,3 +1,4 @@
+In index-data we have daily returns for each index.
 
 The main indexes to study are, one for each asset class:
 

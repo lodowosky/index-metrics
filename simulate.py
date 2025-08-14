@@ -35,6 +35,7 @@ def calculate_annualized_cumulative_returns(daily_returns, years):
 #accedo ai file che mi servono
 summary = pd.read_csv('indexes_available.csv', index_col=0) 
 daily_returns_inner = pd.read_csv('daily_returns_inner.txt', index_col=0)
+daily_returns_outer = pd.read_csv('daily_returns_outer.txt', index_col=0)
 
 print("Iniziamo subito, quali indici vuoi studiare?")
 print(summary)
@@ -52,55 +53,5 @@ else:
     print("Hai selezionato:")
     print(selezionati)
 
-#da questo momento in poi non toccherai più summary, lavorerai solo su selezionati
-
-years = int(input("Ora inserisci la durata dell'investimento (in anni): "))
-
-#risk_free_rate = float(input("\nInserisci il risk free return attuale (per il calcolo dello Sharpe ratio): "))
-risk_free_rate = 0.02
-print(f"Perfetto, iniziamo!\nSto usando un risk_free_rate = {risk_free_rate}.")
-
-
-records = [] # lista dove accumulare i risultati
-list_of_rendimenti = []
-
-for index, row in selezionati.iterrows():
-  nome = row['Name']
-
-  if nome in daily_returns_inner.columns:
-    daily_returns = daily_returns_inner[nome]  # Series pulita
-    start = daily_returns.index[0]
-    end = daily_returns.index[-1]
-
-    rendimenti = calculate_annualized_cumulative_returns(daily_returns, years)
-
-    if rendimenti is None:
-      print(f"Escludo {nome}, avendo la prima quotazione al {start} non è possibile simulare un investimento di durata {years} anni")
-      continue
-
-    rendimenti.name = nome
-    list_of_rendimenti.append(rendimenti)
-
-    rendimento_medio = rendimenti.mean()
-    deviazione_std = rendimenti.std()
-
-    records.append({
-        "Name": nome,
-        "Start": start,
-        "End": end,
-        "Ann. return (%)": round(rendimento_medio, 4),
-        "Std. dev. (%)": round(deviazione_std, 4),
-        "Sharpe ratio": round((rendimento_medio - risk_free_rate)  / deviazione_std, 4)
-    })
-
-cumulative_returns_inner = pd.concat(list_of_rendimenti, axis=1, join='inner') #salvo i rendimenti dell'investimento allineati
-cumulative_returns_outer = pd.concat(list_of_rendimenti, axis=1, join='outer') #salvo i rendimenti dell'investimento
-
-# Creo il DataFrame
-selezionati = pd.DataFrame(records)
-#selezionati.index = selezionati.index + 1
-
-# Stampo il DataFrame
-print(f"\nDalla mia analisi su un investimento di {years} anni otteniamo le seguenti informazioni:\n")
-print(selezionati) 
-selezionati.to_csv("Analytics.csv", sep="\t", index=False)
+selezionati.to_csv("indexes_selected.csv")
+print(f"Puoi visualizzarli anche su indexes_selected.csv")

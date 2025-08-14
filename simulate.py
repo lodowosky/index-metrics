@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
-import os
-import sys
+
 
 # una funzione che restituisce la lista dei ritorni cumulativi prendendo in input una lista di ritorni giornalieri
 def calculate_cumulative_returns(group):
@@ -79,5 +78,5 @@ print(summary)
 
 cumulative_returns_outer = pd.concat(all_cumulative_returns, axis=1, join='outer')
 cumulative_returns_outer = cumulative_returns_outer.sort_index()
-cumulative_returns_outer.to_csv("cumulative_returns_outer.csv")
+cumulative_returns_outer.to_csv("cumulative_returns_outer.txt")
 print("\nHo inoltre salvato i rendimenti cumulativi in cumulative_returns_outer.csv\n")

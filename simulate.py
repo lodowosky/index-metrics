@@ -44,49 +44,18 @@ risk_free_rate = 0.02
 print(f"Perfetto, iniziamo!\nSto usando un risk_free_rate = {risk_free_rate}.")
 
 #calcolo
-records = [] # lista dove accumulare i risultati
-list_of_rendimenti = []
-
+all_cumulative_returns =[]
 for index, row in summary.iterrows():
 
- nome = row['Name']
+    nome = row['Name']
+    print(nome)
+    daily_returns_selection = daily_returns_outer.loc[:, nome].dropna() #prendo la colonna di dati
 
- if nome in daily_returns_outer.columns:
-   
-   daily_returns = daily_returns_outer[nome].dropna()
-   print(daily_returns)
-   start = daily_returns.index[0]
-   end = daily_returns.index[-1]
-   
-   rendimenti = calculate_annualized_cumulative_returns(daily_returns, years)
-   
-   if rendimenti is None:
-        print(f"Escludo {nome}, avendo la prima quotazione al {start} non è possibile simulare un investimento di durata {years} anni")
-        continue
-    
-   rendimenti.name = nome
-   list_of_rendimenti.append(rendimenti)
+    cumulative_returns = calculate_annualized_cumulative_returns(daily_returns_selection, years)
+    cumulative_returns.name = nome
+    all_cumulative_returns.append(cumulative_returns)
 
-   rendimento_medio = rendimenti.mean()
-   deviazione_std = rendimenti.std()
-
-   records.append({
-       "Name": nome,
-       "Start": start,
-       "End": end,
-       "Ann. return (%)": round(rendimento_medio, 4),
-       "Std. dev. (%)": round(deviazione_std, 4),
-       "Sharpe ratio": round((rendimento_medio - risk_free_rate)  / deviazione_std, 4)
-   })
-
-cumulative_returns_outer = pd.concat(list_of_rendimenti, axis=1, join='outer') #salvo i rendimenti dell'investimento
+print(all_cumulative_returns)
+cumulative_returns_outer = pd.concat(all_cumulative_returns, axis=1, join='outer')
 cumulative_returns_outer = cumulative_returns_outer.sort_index()
-cumulative_returns_outer.to_csv("cumulative_returns_outer.txt")
-
-summary = pd.DataFrame(records)
-#selezionati.index = selezionati.index + 1
-
-# Stampo il DataFrame
-print(f"\nDalla mia analisi su un investimento di {years} anni otteniamo le seguenti informazioni:\n")
-print(summary)
-
+print(cumulative_returns_outer)

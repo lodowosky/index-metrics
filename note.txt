@@ -1,0 +1,21 @@
+
+The main indexes to study are, one for each asset class:
+
+Asset Class | Name | Source | Start | Currency | Geography | Description | Note
+
+1. Stock: MSCI World Index, yfinance, 1972, USD, added 
+2. Bond: 
+3. Commodities: S&P GSCI, yfinance, 1984, USD, added
+		Global Price Index of All Commodities, fred st.louis, 2003, not yet
+4. Gold: Gold Futures COMEX, yfinacnce, 2000, USD
+	 Gold Price (not an index), csv, 1968, USD, paolo coletti, added
+5. Real estate:
+6. Cryptocurrencies:
+
+We also need conversion data:
+1. USD to EUR, Banca d'Italia, 1999
+
+
+We can add other optional indexes
+1. Stocks, Emerging Markets: MSCI Emerging Markets Index
+2. Stocks, Factors: MSCI World Quality Index

@@ -1,4 +1,4 @@
-,Name,Start,End,Ann. return (%),Std. dev. (%),Sharpe ratio
-0,S&P GSCI,1984-01-03,2025-08-14,3,5,0.56
-1,GOLD,2000-08-30,2025-08-14,8,6,1.4
-2,MSCI World,1972-01-03,2025-08-14,7,4,1.66
+,Name,Start,End,Ann. return (%),Std. dev. (%),Sharpe ratio,S&P GSCI,GOLD,MSCI World
+0,S&P GSCI,1984-01-03,2025-08-14,3,5,0.56,1.0,0.88,-0.5
+1,GOLD,2000-08-30,2025-08-14,8,6,1.4,0.88,1.0,-0.58
+2,MSCI World,1972-01-03,2025-08-14,7,4,1.66,-0.5,-0.58,1.0

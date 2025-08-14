@@ -25,13 +25,9 @@ for file in file_txt:
 
 summary.to_csv("summary.csv")
 
-# concatenazione
-daily_returns_inner = pd.concat(lista_di_serie, axis=1, join='inner')
+# concatenazione e salvaggio
 daily_returns_outer = pd.concat(lista_di_serie, axis=1, join='outer')
 daily_returns_outer = daily_returns_outer.sort_index()
-
-
-daily_returns_inner.to_csv("daily_returns_inner.txt")
 daily_returns_outer.to_csv("daily_returns_outer.txt")
 
 print("\nFile aggiornati, ti mostro summary.csv")

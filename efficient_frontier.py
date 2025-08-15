@@ -6,7 +6,7 @@ import matplotlib.dates as mdates
 #input
 summary = pd.read_csv('summary.csv', index_col=0) 
 cumulative_returns_outer = pd.read_csv('cumulative_returns_outer.txt', index_col=0)
-aligned_returns = cumulative_returns_outer.dropna() 
+cum = cumulative_returns_outer.dropna() 
 
 x_annual_aligned = pd.Series(aligned_returns.iloc[:, 0], name=aligned_returns.columns[0])
 y_annual_aligned = pd.Series(aligned_returns.iloc[:, 1], name=aligned_returns.columns[1])
@@ -104,15 +104,14 @@ quota_w_corr_sr = quote_w[indice_max]
 print()
 print(f'Calcolo della composizione ottimale minimizzando il rischio')
 print()
-print(f'Portfolio meno rischioso ({x_label}={quota_x_corr_ds*100:.0f}%, {y_label}={quota_y_corr_ds*100:.0f}%, {z_label}={quota_z_corr_ds*100:.0f}%, {w_label}={quota_w_corr_ds*100:.0f}%) = {rend_corrispondente_ds:.5f} +- {dev_std_min:.5f}; Sharpe ratio = {sharpe_ratio_corr_ds:.2f}')
-print(f'Portfolio efficiente ({x_label}={quota_x_corr_sr*100:.0f}%, {y_label}={quota_y_corr_sr*100:.0f}%, {z_label}={quota_z_corr_sr*100:.0f}%, {w_label}={quota_w_corr_sr*100:.0f}%) = {rend_corrispondente_sr:.5f} +- {dev_std_corr_sr:.5f}; Sharpe ratio = {sharpe_ratio_max:.2f}')
+print(f'Portfolio min risk ({x_label}={quota_x_corr_ds*100:.0f}%, {y_label}={quota_y_corr_ds*100:.0f}%, {z_label}={quota_z_corr_ds*100:.0f}%, {w_label}={quota_w_corr_ds*100:.0f}%) = {rend_corrispondente_ds:.5f} +- {dev_std_min:.5f}; Sharpe ratio = {sharpe_ratio_corr_ds:.2f}')
+print(f'Portfolio max sharpe ratio ({x_label}={quota_x_corr_sr*100:.0f}%, {y_label}={quota_y_corr_sr*100:.0f}%, {z_label}={quota_z_corr_sr*100:.0f}%, {w_label}={quota_w_corr_sr*100:.0f}%) = {rend_corrispondente_sr:.5f} +- {dev_std_corr_sr:.5f}; Sharpe ratio = {sharpe_ratio_max:.2f}')
 
 p_label_ds=f'Portfolio meno rischioso : {rend_corrispondente_ds:.2f}% +- {dev_std_min:.2f}%; Sharpe ratio = {sharpe_ratio_corr_ds:.2f}'
 plt.scatter(dev_std_min, rend_corrispondente_ds, label=p_label_ds, color='c')
 
 p_label_sr=f'Portfolio efficiente : {rend_corrispondente_sr:.2f}% +- {dev_std_corr_sr:.2f}%; Sharpe ratio = {sharpe_ratio_max:.2f}'
 plt.scatter(dev_std_corr_sr, rend_corrispondente_sr, label=p_label_sr, color = 'red', alpha = 0.5)
-
 plt.xlabel("Volatilità dei rendimenti")
 plt.ylabel("Rendimento annuale atteso (%)")
 plt.axis('equal')

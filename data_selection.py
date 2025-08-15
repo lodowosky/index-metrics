@@ -22,7 +22,7 @@ else:
 
     # Applica lo stesso filtraggio a daily_returns_outer
     daily_returns_outer = daily_returns_outer.iloc[:, scelte_num]
-    daily_returns_outer.to_csv("daily_returns_outer.txt", sep='\t')
+    daily_returns_outer.to_csv("daily_returns_outer.txt")
     print("\nFile aggiornati, ti mostro summary.csv")
     print(summary)
     print("\n")

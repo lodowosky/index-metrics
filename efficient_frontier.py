@@ -50,7 +50,6 @@ def genera_quote_df_equilibrato(summary, step=0.1, min_val=0.1, max_val=0.9, dec
                 for perm in set(itertools.permutations(arrotondati)):
                     risultati.add(perm)
     
-    colonne = [f"quota_{chr(120+i)}" for i in range(n-1)]
     return pd.DataFrame(sorted(risultati), columns=summary['Name'])
 
 
@@ -59,33 +58,37 @@ summary = pd.read_csv('summary.csv', index_col=0)
 daily_returns_outer = pd.read_csv('daily_returns_outer.txt', index_col=0)
 daily_returns_inner = daily_returns_outer.dropna()
 
-max = 5
+'''
+maxi = 5
 
-if len(summary) >= max:
-    print(f"Non posso procede con più di {max} indici. Selezionare qualcuno con data_selection.py")
+if len(summary) >= maxi:
+    print(f"Non posso procede con più di {maxi} indici. Selezionare qualcuno con data_selection.py")
     sys.exit(1)
+'''
 
 years = int(input("Ora inserisci la durata dell'investimento (in anni): "))
 #risk_free_rate = float(input("\nInserisci il risk free return attuale (per il calcolo dello Sharpe ratio): "))
 risk_free_rate = 0.02
 print(f"Perfetto, iniziamo!\nSto usando un risk_free_rate = {risk_free_rate}.\n")
 
-quote = genera_quote_df_equilibrato(summary, step=0.1, min_val=0.1, max_val=0.9)
+#calcolo
+quote = genera_quote_df_equilibrato(summary, step=0.1, min_val=0.0, max_val=1)
 print(quote)
-print(len(quote.columns))
+print(f"\nDevo calcolare {len(quote)} combinazioni\n")
 
 
-for i in range(len(summary)):
+for i in range(len(quote)):
         
         all_cumulative_returns =[]
         means_list  = []
         std_list = []
         daily_returns_quoted = daily_returns_inner * quote.loc[i] #moltiplica tutto il dataframe per una riga specifica di quote (es: 0.1, 0.2, 0.4, 0.3)
         
+        
         for index, row in summary.iterrows():
             
             nome = row['Name']
-            print(f"Calcolo i rendimenti cumulativi per {nome}")
+            
 
             daily_returns_quoted_column = daily_returns_quoted.loc[:, nome]
 
@@ -96,13 +99,43 @@ for i in range(len(summary)):
             means_list.append(cumulative_returns.mean())
             std_list.append(cumulative_returns.std())
 
-        print(len(means_list))
+        print(f"{i+1} su {len(quote)}")
 
-        mean = sum(means_list * quote.iloc[i, :len(summary)])
-        std = sum(std_list * quote.iloc[i, : len(summary)])    
-        
-        quote.loc[i, "Ann. return (%)"] = round(mean, 0),
-        quote.loc[i,"Std. dev. (%)"] = round(std, 0),
-        quote.loc[i, "Sharpe ratio"] = round((mean - risk_free_rate)  / std, 2) 
+        mean = np.dot(means_list, quote.iloc[i, :len(summary)])
+        std = np.dot(std_list, quote.iloc[i, :len(summary)])
 
-print(quote)
+        quote.loc[i, "Ann. return (%)"] = mean
+        quote.loc[i, "Std. dev. (%)"] = std
+        quote.loc[i, "Sharpe ratio"] = (mean - risk_free_rate)  / std
+
+
+#inserisco un etichetta per i portfogli a singoli asset
+mask = quote[quote.columns[:len(summary)]].eq(1)
+quote["Label"] = mask.apply(lambda row: row.index[row].tolist()[0] if row.any() else np.nan, axis=1)
+#e una per i max sharpe e il min std
+quote.at[quote["Std. dev. (%)"].idxmin(), 'Label'] = 'MIN STD'
+quote.at[quote["Sharpe ratio"].idxmax(), 'Label'] = 'MAX SHARPE'
+#salvo i risultati notevoli
+results = quote[quote["Label"].notna()].copy()
+results.to_csv("efficient_frontier.txt") 
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    print(results)
+    
+#grafico
+plt.scatter(quote.loc[:, "Std. dev. (%)"], quote.loc[:, "Ann. return (%)"], color = 'blue', alpha = 0.5)
+# Aggiungo le etichette
+for i, label in enumerate(results["Label"]):
+        plt.plot(
+            results["Std. dev. (%)"].iloc[i], 
+            results["Ann. return (%)"].iloc[i], 'o',
+            label = label,
+        )
+
+plt.xlabel("Volatilità dei rendimenti")
+plt.ylabel("Rendimento annuale atteso (%)")
+plt.axis('equal')
+plt.legend(loc='best')
+plt.grid(True)
+plt.savefig('efficient_frontier.png')
+# Mostrare il grafico
+plt.show()

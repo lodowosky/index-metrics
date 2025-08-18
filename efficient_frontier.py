@@ -72,7 +72,7 @@ risk_free_rate = 0.02
 print(f"Perfetto, iniziamo!\nSto usando un risk_free_rate = {risk_free_rate}.\n")
 
 #calcolo
-quote = genera_quote_df_equilibrato(summary, step=0.1, min_val=0.0, max_val=1)
+quote = genera_quote_df_equilibrato(summary, step=0.05, min_val=0.0, max_val=1)
 print(quote)
 print(f"\nDevo calcolare {len(quote)} combinazioni\n")
 

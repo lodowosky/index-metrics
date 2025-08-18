@@ -1,5 +1,9 @@
 In index-data we have daily returns for each index.
 Every file is in USD, add a code to convert.
+efficient_frontier output in portfolio-results
+
+
+
 The main indexes to study are, one for each asset class:
 
 Asset Class | Name | Source | Start | Currency | Geography | Description | Note

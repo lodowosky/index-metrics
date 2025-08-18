@@ -78,35 +78,26 @@ print(f"\nDevo calcolare {len(quote)} combinazioni\n")
 
 
 for i in range(len(quote)):
-        
-        all_cumulative_returns =[]
-        means_list  = []
-        std_list = []
-        daily_returns_quoted = daily_returns_inner * quote.loc[i] #moltiplica tutto il dataframe per una riga specifica di quote (es: 0.1, 0.2, 0.4, 0.3)
-        
-        
-        for index, row in summary.iterrows():
-            
-            nome = row['Name']
-            
+    # pesi del portafoglio
+    w = quote.loc[i, summary['Name']].values  
+    
+    # rendimento giornaliero del portafoglio = combinazione lineare dei ritorni
+    portfolio_returns = daily_returns_inner.values @ w
+    portfolio_returns = pd.Series(portfolio_returns, index=daily_returns_inner.index)
 
-            daily_returns_quoted_column = daily_returns_quoted.loc[:, nome]
+    # calcolo rolling annualizzato del portafoglio
+    cumulative_returns = calculate_annualized_cumulative_returns(portfolio_returns, years)
 
-            cumulative_returns = calculate_annualized_cumulative_returns(daily_returns_quoted_column, years)
-            cumulative_returns.name = nome
-            all_cumulative_returns.append(cumulative_returns)
-            
-            means_list.append(cumulative_returns.mean())
-            std_list.append(cumulative_returns.std())
+    # statistiche
+    mean = cumulative_returns.mean()
+    std  = cumulative_returns.std()
 
-        print(f"{i+1} su {len(quote)}")
+    # scrittura nei risultati
+    quote.loc[i, "Ann. return (%)"] = round(mean, 3)
+    quote.loc[i, "Std. dev. (%)"]   = round(std, 3)
+    quote.loc[i, "Sharpe ratio"]    = round((mean - risk_free_rate) / std, 3)
 
-        mean = np.dot(means_list, quote.iloc[i, :len(summary)])
-        std = np.dot(std_list, quote.iloc[i, :len(summary)])
-
-        quote.loc[i, "Ann. return (%)"] = mean
-        quote.loc[i, "Std. dev. (%)"] = std
-        quote.loc[i, "Sharpe ratio"] = (mean - risk_free_rate)  / std
+    print(f"{i+1} su {len(quote)}")
 
 
 #inserisco un etichetta per i portfogli a singoli asset
@@ -115,14 +106,18 @@ quote["Label"] = mask.apply(lambda row: row.index[row].tolist()[0] if row.any() 
 #e una per i max sharpe e il min std
 quote.at[quote["Std. dev. (%)"].idxmin(), 'Label'] = 'MIN STD'
 quote.at[quote["Sharpe ratio"].idxmax(), 'Label'] = 'MAX SHARPE'
+quote.to_csv("portfolio-results/cumulative_returns.txt") 
+
+
 #salvo i risultati notevoli
 results = quote[quote["Label"].notna()].copy()
-results.to_csv("efficient_frontier.txt") 
+results.to_csv("portfolio-results/portfolio_summary.csv") 
+
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(results)
     
 #grafico
-plt.scatter(quote.loc[:, "Std. dev. (%)"], quote.loc[:, "Ann. return (%)"], color = 'blue', alpha = 0.5)
+plt.scatter(quote.loc[:, "Std. dev. (%)"], quote.loc[:, "Ann. return (%)"], color = 'blue', alpha = 0.25)
 # Aggiungo le etichette
 for i, label in enumerate(results["Label"]):
         plt.plot(
@@ -131,11 +126,13 @@ for i, label in enumerate(results["Label"]):
             label = label,
         )
 
-plt.xlabel("Volatilità dei rendimenti")
-plt.ylabel("Rendimento annuale atteso (%)")
+plt.xlabel("Std. dev. (%)")
+plt.ylabel("Ann. return (%)")
 plt.axis('equal')
+plt.title(f"Efficient frontier for {years} years investing portfolio")
 plt.legend(loc='best')
 plt.grid(True)
-plt.savefig('efficient_frontier.png')
+
+plt.savefig('portfolio-results/efficient_frontier.png')
 # Mostrare il grafico
 plt.show()
